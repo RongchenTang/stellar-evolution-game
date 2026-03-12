@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+    <meta name="theme-color" content="#050612" />
+    <title>恒星演化：班级星系</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+
+    <main id="app" class="app" aria-live="polite">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand__title">恒星演化：班级星系</div>
+          <div class="brand__sub" id="hudSub">单页 · 手机 · 无服务器</div>
+        </div>
+        <button class="btn btn--ghost" id="btnTeacher" type="button">教师</button>
+      </header>
+
+      <section class="card" id="screen"></section>
+
+      <footer class="bottombar">
+        <button class="btn btn--ghost" id="btnBack" type="button">返回</button>
+        <button class="btn btn--ghost" id="btnRestart" type="button">重开宇宙</button>
+      </footer>
+    </main>
+
+    <dialog class="modal" id="teacherModal">
+      <form method="dialog" class="modal__inner">
+        <div class="modal__head">
+          <div class="modal__title">教师控制台</div>
+          <button class="btn btn--ghost" value="close" type="submit">关闭</button>
+        </div>
+        <div class="modal__body">
+          <div class="grid2">
+            <div class="panel">
+              <div class="panel__title">关卡解锁码（4位数）</div>
+              <div class="mono small" id="teacherCodes"></div>
+              <div class="hint">把对应关卡的解锁码口头告诉学生即可。</div>
+            </div>
+            <div class="panel">
+              <div class="panel__title">教学开关</div>
+              <label class="row">
+                <input id="toggleMassMode" type="checkbox" />
+                <span>扩展初始质量到 30 M☉（用于演示黑洞结局）</span>
+              </label>
+              <div class="hint">默认符合课件设定：0.03–15 M☉；打开后更容易出现超大质量结局。</div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top: 12px">
+            <div class="panel__title">班级星系（离线汇总）</div>
+            <div class="hint">
+              无服务器模式下，学生数据默认只在各自手机里。要生成全班星系地图：让学生把“登记码”发给你，你在这里批量导入。
+            </div>
+            <textarea id="importBox" class="textarea" rows="5" placeholder="粘贴一个或多个登记码（可一行一个）"></textarea>
+            <div class="row" style="justify-content: flex-end; gap: 8px; margin-top: 8px">
+              <button class="btn btn--ghost" id="btnRunSecretScan" type="button">运行双星检测</button>
+              <button class="btn" id="btnImport" type="button">导入登记码</button>
+            </div>
+            <div class="hint" id="importStatus"></div>
+          </div>
+
+          <div class="panel panel--danger" style="margin-top: 12px">
+            <div class="panel__title">危险操作</div>
+            <div class="row" style="justify-content: flex-end; gap: 8px">
+              <button class="btn btn--danger" id="btnResetAll" type="button">清空本机数据</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="detailModal">
+      <form method="dialog" class="modal__inner">
+        <div class="modal__head">
+          <div class="modal__title">恒星信息</div>
+          <button class="btn btn--ghost" value="close" type="submit">关闭</button>
+        </div>
+        <div class="modal__body" id="detailBody"></div>
+      </form>
+    </dialog>
+
+    <script src="game.js"></script>
+  </body>
+</html>
