@@ -679,22 +679,24 @@
     const filledCount = clamp(Number(state.l4Step || 0), 0, layers.length);
     const nextIndex = filledCount;
     const completed = filledCount >= layers.length;
-    const options = layers.slice().sort(() => Math.random() - 0.5);
+    const options = layers.slice();
 
     const onionHtml = layers
       .map((_, i) => {
         const filled = i < filledCount;
         const active = i === nextIndex && !completed;
         const isCore = i === layers.length - 1;
-        const label = filled ? layers[i] : "？";
-        return `<div class="onion__layer ${filled ? "is-filled" : ""} ${active ? "is-active" : ""} ${isCore ? "is-core" : ""}" style="--i:${i}" data-layer="${i}">${escapeHtml(label)}</div>`;
+        const label = filled ? layers[i] : active ? "？" : "";
+        return `<div class="onion__layer ${filled ? "is-filled" : ""} ${active ? "is-active" : ""} ${isCore ? "is-core" : ""}" style="--i:${i}" data-layer="${i}"><span class="onion__label">${escapeHtml(
+          label
+        )}</span></div>`;
       })
       .join("");
 
     setScreen(`
       <div class="col">
-        <div class="h1">第四关：死亡前夕（大质量恒星的“洋葱层”）</div>
-        <div class="p muted">请从外到内填写每一层发生核聚变的元素：氢 → 氦 → 碳 → 氧 → 硅 → 铁</div>
+        <div class="h1">第四关：命运分叉路口（大质量恒星的“洋葱层”）</div>
+        <div class="p muted">请从外到内填写每一层发生核聚变的元素：</div>
 
         <div class="onionWrap">
           <div class="onion" aria-label="恒星洋葱层结构（从外到内）">
@@ -702,7 +704,7 @@
           </div>
 
           <div class="panel">
-            <div class="panel__title">互动：填洋葱层</div>
+            <div class="panel__title">互动：填“洋葱层”</div>
             <div class="p">
               ${
                 completed
@@ -712,7 +714,14 @@
             </div>
             <div class="hint" id="onionHint"></div>
             <div class="grid2" style="margin-top:10px">
-              ${options.map((e) => `<button class="btn ${completed ? "btn--ghost" : ""}" ${completed ? "disabled" : ""} data-pick="${escapeHtml(e)}" type="button">${escapeHtml(e)}</button>`).join("")}
+              ${options
+                .map((e, i) => {
+                  const used = i < filledCount;
+                  return `<button class="btn ${used ? "btn--ghost" : ""}" ${used ? "disabled" : ""} data-pick="${escapeHtml(
+                    e
+                  )}" type="button">${escapeHtml(e)}</button>`;
+                })
+                .join("")}
             </div>
           </div>
         </div>

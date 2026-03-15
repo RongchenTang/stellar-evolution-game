@@ -407,13 +407,25 @@ body {
     radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.16), transparent 55%),
     radial-gradient(circle at 70% 70%, rgba(52, 211, 153, 0.10), transparent 55%),
     rgba(255, 255, 255, 0.03);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   font-weight: 900;
   letter-spacing: 0.6px;
-  color: rgba(245, 246, 255, 0.78);
+  font-size: 14px;
+  color: rgba(245, 246, 255, 0.9);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
   user-select: none;
+}
+
+.onion__label {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(5, 6, 18, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  line-height: 1.1;
 }
 
 .onion__layer.is-active {
@@ -433,10 +445,19 @@ body {
 }
 
 .onion__layer.is-core {
+  font-size: 18px;
   background:
     radial-gradient(circle at 50% 45%, rgba(251, 113, 133, 0.20), transparent 60%),
     radial-gradient(circle at 50% 55%, rgba(251, 191, 36, 0.12), transparent 60%),
     rgba(251, 113, 133, 0.06);
+}
+
+.onion__layer.is-core .onion__label {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(251, 113, 133, 0.2);
+  border-color: rgba(251, 113, 133, 0.35);
+  font-size: 18px;
 }
 
 @keyframes boom {
