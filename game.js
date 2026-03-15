@@ -465,7 +465,7 @@
     setScreen(`
       <div class="col">
         <div class="h1">第二关：主序星平衡小游戏</div>
-        <div class="p muted">教学目标：引力 vs 核聚变。用“按住加热、松手冷却”维持平衡，在 20 秒内把稳定度推到 100。</div>
+        <div class="p muted">教学目标：引力 vs 核聚变。用“按住加热、松手冷却”维持平衡，在 15 秒内把稳定度推到 100。</div>
 
         <div class="arena">
           <div class="arena__center">
@@ -493,7 +493,7 @@
           </div>
 
           <div class="row" style="justify-content:space-between; margin-top:12px">
-            <div class="hint">剩余时间：<span class="mono" id="timeLeft">20.0</span>s</div>
+            <div class="hint">剩余时间：<span class="mono" id="timeLeft">15.0</span>s</div>
             <div class="hint" id="miniHint"></div>
           </div>
 
@@ -503,8 +503,8 @@
       </div>
     `);
 
-    const TARGET_MS = 20000;
-    const st = { stability: 60, gravity: 48 + randomInt(0, 6), fusion: 50, elapsed: 0, running: false, holding: false };
+    const TARGET_MS = 15000;
+    const st = { stability: 65, gravity: 48 + randomInt(0, 6), fusion: 50, elapsed: 0, running: false, holding: false };
     const tickMs = 250;
 
     const elBarSt = $("#barSt");
@@ -546,7 +546,7 @@
     function start() {
       clearMinigame();
       st.running = true;
-      st.stability = 60;
+      st.stability = 65;
       st.gravity = 48 + randomInt(0, 6);
       st.fusion = 50;
       st.elapsed = 0;
@@ -561,16 +561,16 @@
       minigame.timerId = window.setInterval(() => {
         if (!st.running) return;
         st.elapsed += tickMs;
-        st.gravity = clamp(st.gravity + 1, 0, 100);
+        st.gravity = clamp(st.gravity + 0.5, 0, 100);
         if (st.holding) {
-          st.fusion = clamp(st.fusion + 1.2, 0, 100);
+          st.fusion = clamp(st.fusion + 2.6, 0, 100);
         } else {
-          st.fusion = clamp(st.fusion - 0.65, 0, 100);
+          st.fusion = clamp(st.fusion - 1.7, 0, 100);
         }
         const diff = Math.abs(st.gravity - st.fusion);
         const balance = clamp(1 - diff / 12, 0, 1); // 越接近越高
         const overheat = st.fusion > st.gravity + 10 ? (st.fusion - st.gravity - 10) * 0.06 : 0;
-        const gain = 1.3 * balance;
+        const gain = 2 * balance;
         const decay = 0.6 + (1 - balance) * 0.9 + overheat;
         st.stability = clamp(st.stability + gain - decay, 0, 100);
         uiUpdate();
