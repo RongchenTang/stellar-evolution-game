@@ -746,6 +746,10 @@
         e.dataTransfer?.setData("text/plain", id ?? "");
         e.dataTransfer?.setDragImage(card, 10, 10);
       });
+      card.addEventListener("pointerdown", (e) => {
+        // Prevent long-press text selection on touch only
+        if (e.pointerType === "touch") e.preventDefault();
+      });
     });
 
     $all("[data-drop='slot']").forEach((slot) => {
@@ -767,6 +771,39 @@
       if (!Number.isFinite(id)) return;
       handleDropToPool(id);
     });
+
+    // Tap-to-place fallback for mobile
+    let selectedId = null;
+    function setSelected(id) {
+      selectedId = id;
+      $all(".dragCard").forEach((c) => c.classList.remove("is-selected"));
+      if (id === null) return;
+      const target = $all(".dragCard").find((c) => Number(c.getAttribute("data-id")) === id);
+      target?.classList.add("is-selected");
+      if (hint) {
+        hint.textContent = "已选中卡片，请点击排序区的空位放置。";
+        hint.style.color = "rgba(245,246,255,.68)";
+      }
+    }
+
+    $all(".dragCard").forEach((card) => {
+      card.addEventListener("click", () => {
+        const id = Number(card.getAttribute("data-id"));
+        if (!Number.isFinite(id)) return;
+        setSelected(id);
+      });
+    });
+
+    $all("[data-drop='slot']").forEach((slot) => {
+      slot.addEventListener("click", () => {
+        if (selectedId === null) return;
+        const slotIndex = Number(slot.getAttribute("data-slot"));
+        if (!Number.isFinite(slotIndex)) return;
+        handleDropToSlot(slotIndex, selectedId);
+      });
+    });
+
+    poolEl?.addEventListener("click", () => setSelected(null));
 
     $("#btnL3Reset")?.addEventListener("click", () => updateOrder([null, null, null, null]));
 
