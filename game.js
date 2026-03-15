@@ -152,7 +152,7 @@
       l1Rolled: false,
       l3Order: [null, null, null, null],
       l4Step: 0,
-      registry: { className: "", seat: "", recordId: null, export: "" },
+      registry: { className: "", seat: "", epitaph: "", recordId: null, export: "" },
     };
   }
 
@@ -254,6 +254,10 @@
           <div class="panel__title">结局</div>
           <div class="p">${escapeHtml(rec.ending || "—")}${rec.secretBinary ? "（双星触发）" : ""}</div>
           <div class="hint">${escapeHtml(rec.endingTitle || "")}</div>
+        </div>
+        <div class="panel">
+          <div class="panel__title">墓志铭 / 寄语</div>
+          <div class="p">${escapeHtml(rec.epitaph || "—")}</div>
         </div>
       </div>
     `;
@@ -391,7 +395,15 @@
   function renderL1() {
     if (!state.l1Rolled || !Number.isFinite(state.mass)) {
       const max = state.massMaxMode === "expanded" ? 30 : 15;
-      const raw = randomInt(3, max * 100) / 100; // 0.03–max
+      // 增加 <0.08 的概率：分段抽样
+      const lowProb = 0.08; // 8% 概率落入褐矮星范围
+      const roll = randomInt(0, 9999) / 10000;
+      let raw;
+      if (roll < lowProb) {
+        raw = randomInt(3, 7) / 100; // 0.03–0.07
+      } else {
+        raw = randomInt(8, max * 100) / 100; // 0.08–max
+      }
       state.mass = clamp(raw, 0.03, max);
       state.adjustmentsLeft = 3;
       state.l1Rolled = true;
@@ -986,6 +998,13 @@
           </div>
         </div>
 
+        <div class="panel">
+          <div class="panel__title">墓志铭 / 寄语</div>
+          <textarea class="textarea" id="epitaph" rows="3" placeholder="写一句属于你的恒星的话">${escapeHtml(
+            state.registry.epitaph || ""
+          )}</textarea>
+        </div>
+
         <button class="btn" id="btnSaveRegistry">提交登记</button>
 
         <div class="panel" id="exportPanel" style="display:none">
@@ -1004,6 +1023,7 @@
     $("#btnSaveRegistry")?.addEventListener("click", async () => {
       const className = String($("#className")?.value || "").trim();
       const seat = normalizeSeat($("#seat")?.value || "");
+      const epitaph = String($("#epitaph")?.value || "").trim().slice(0, 80);
       if (!className) return $("#className")?.focus();
       if (!seat) return $("#seat")?.focus();
 
@@ -1014,12 +1034,14 @@
         mass: Number(state.mass),
         ending: ending?.label || "",
         endingTitle: ending?.title || "",
+        epitaph,
         className,
         seat,
       });
 
       state.registry.className = className;
       state.registry.seat = seat;
+      state.registry.epitaph = epitaph;
       state.registry.recordId = saved.id;
       state.registry.export = exportCode(saved);
       saveState();
