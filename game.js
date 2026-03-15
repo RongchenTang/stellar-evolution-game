@@ -465,7 +465,7 @@
     setScreen(`
       <div class="col">
         <div class="h1">第二关：主序星平衡小游戏</div>
-        <div class="p muted">教学目标：引力 vs 核聚变。用“按住加热、松手冷却”维持平衡，坚持 10 秒。</div>
+        <div class="p muted">教学目标：引力 vs 核聚变。用“按住加热、松手冷却”维持平衡，在 20 秒内把稳定度推到 100。</div>
 
         <div class="arena">
           <div class="arena__center">
@@ -493,7 +493,7 @@
           </div>
 
           <div class="row" style="justify-content:space-between; margin-top:12px">
-            <div class="hint">剩余时间：<span class="mono" id="timeLeft">10.0</span>s</div>
+            <div class="hint">剩余时间：<span class="mono" id="timeLeft">20.0</span>s</div>
             <div class="hint" id="miniHint"></div>
           </div>
 
@@ -503,8 +503,8 @@
       </div>
     `);
 
-    const TARGET_MS = 10000;
-    const st = { stability: 90, gravity: 48 + randomInt(0, 6), fusion: 50, elapsed: 0, running: false, holding: false };
+    const TARGET_MS = 20000;
+    const st = { stability: 60, gravity: 48 + randomInt(0, 6), fusion: 50, elapsed: 0, running: false, holding: false };
     const tickMs = 250;
 
     const elBarSt = $("#barSt");
@@ -546,14 +546,14 @@
     function start() {
       clearMinigame();
       st.running = true;
-      st.stability = 90;
+      st.stability = 60;
       st.gravity = 48 + randomInt(0, 6);
       st.fusion = 50;
       st.elapsed = 0;
       st.holding = false;
       if (btnStart) btnStart.disabled = true;
       if (elHint) {
-        elHint.textContent = "按住加热，松手冷却，让两条压力尽量接近。";
+        elHint.textContent = "让重力与核聚变尽量接近平衡，稳定度才会上升。";
         elHint.style.color = "rgba(245,246,255,.68)";
       }
       uiUpdate();
@@ -568,13 +568,19 @@
           st.fusion = clamp(st.fusion - 0.65, 0, 100);
         }
         const diff = Math.abs(st.gravity - st.fusion);
-        const overheat = st.fusion > st.gravity + 10 ? (st.fusion - st.gravity - 10) * 0.08 : 0;
-        st.stability = clamp(st.stability - (1.55 + diff * 0.09 + overheat), 0, 100);
+        const balance = clamp(1 - diff / 12, 0, 1); // 越接近越高
+        const overheat = st.fusion > st.gravity + 10 ? (st.fusion - st.gravity - 10) * 0.06 : 0;
+        const gain = 1.2 * balance;
+        const decay = 0.6 + (1 - balance) * 0.9 + overheat;
+        st.stability = clamp(st.stability + gain - decay, 0, 100);
         uiUpdate();
-        if (st.stability <= 0) return stop("失败：引力占据上风。重新挑战。", "rgba(251,113,133,.95)");
-        if (st.elapsed >= TARGET_MS) {
-          stop("成功：你维持了主序星平衡（10 秒）！", "rgba(52,211,153,.95)");
+        if (st.stability <= 0) return stop("失败：稳定度崩溃。重新挑战。", "rgba(251,113,133,.95)");
+        if (st.stability >= 100) {
+          stop("成功：稳定度达到 100，主序星平衡建立！", "rgba(52,211,153,.95)");
           pushRoute("l2done");
+        }
+        if (st.elapsed >= TARGET_MS) {
+          stop("失败：时间到但稳定度未达 100。", "rgba(251,113,133,.95)");
         }
       }, tickMs);
     }
