@@ -25,6 +25,7 @@
 
   const historyStack = [];
   const minigame = { timerId: null };
+  const FIXED_CODES = { 2: "1024", 3: "2333", 4: "4068", 5: "6666" };
 
   function clamp(n, min, max) {
     return Math.max(min, Math.min(max, n));
@@ -158,7 +159,7 @@
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? safeJsonParse(raw, null) : null;
     const st = { ...defaultState(), ...(parsed || {}) };
-    if (!st.teacherCodes) st.teacherCodes = { 1: random4Digits(), 2: random4Digits(), 3: random4Digits(), 4: random4Digits(), 5: random4Digits() };
+    if (!st.teacherCodes) st.teacherCodes = { 1: random4Digits() };
     if (!st.teacherUnlock) st.teacherUnlock = { 1: false, 2: false, 3: false, 4: false, 5: false };
     return st;
   }
@@ -235,8 +236,7 @@
   }
 
   function showTeacherPanel() {
-    teacherCodesEl.textContent =
-      `第1关：${state.teacherCodes[1]}\n第2关：${state.teacherCodes[2]}\n第3关：${state.teacherCodes[3]}\n第4关：${state.teacherCodes[4]}\n第5关：${state.teacherCodes[5]}`;
+    teacherCodesEl.textContent = `第1关：无需密码\n第2-5关：密码固定（不显示）`;
     toggleMassModeEl.checked = state.massMaxMode === "expanded";
     importStatusEl.textContent = "";
     if (!teacherModal.open) teacherModal.showModal();
@@ -374,7 +374,8 @@
 
     $("#btnUnlock")?.addEventListener("click", () => {
       const code = String($("#unlockCode")?.value || "").trim();
-      if (code === state.teacherCodes[level]) {
+      const expected = FIXED_CODES[level] ?? state.teacherCodes[level];
+      if (code === expected) {
         state.teacherUnlock[level] = true;
         saveState();
         pushRoute(nextRoute || `l${level}`);
