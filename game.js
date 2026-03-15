@@ -652,7 +652,7 @@
     setScreen(`
       <div class="col">
         <div class="h1">第三关：恒星中年危机</div>
-        <div class="p muted">将“中质量恒星面临的中年危机的因果链”拖拽排序，从上到下排列正确顺序。</div>
+        <div class="p muted">将“恒星面临的中年危机的因果链”拖拽排序，从上到下排列正确顺序。</div>
 
         <div class="panel">
           <div class="panel__title">拖拽排序（从上到下）</div>
@@ -777,12 +777,25 @@
   }
 
   function renderL3Done() {
+    const mass = Number(state.mass);
+    const isMid = Number.isFinite(mass) && mass <= 8;
+    const title = isMid ? "第三关完成：红巨星阶段" : "第三关完成：超巨星序章";
+    const lines = isMid
+      ? [
+          "核心收缩与壳层聚变让外壳变大变红，恒星进入红巨星阶段。",
+          "对中质量恒星而言，这已经是主反应的终点，之后将进入行星状星云与白矮星阶段。",
+        ]
+      : [
+          "核心收缩与壳层聚变让恒星进入“超巨星”阶段。",
+          "对大质量恒星而言，这只是更重元素聚变的开端，真正的命运分叉还在后面。",
+        ];
+
     setScreen(`
       <div class="col">
-        <div class="h1">第三关完成：红巨星</div>
+        <div class="h1">${escapeHtml(title)}</div>
         <div class="panel">
-          <div class="p">核心收缩让温度上升，新的核反应阶段被点燃。</div>
-          <div class="p muted">结构调整会让外层膨胀：恒星“变红、变大”，进入红巨星阶段。</div>
+          <div class="p">${escapeHtml(lines[0])}</div>
+          <div class="p muted">${escapeHtml(lines[1])}</div>
         </div>
         <button class="btn" id="btnNextL4">继续：进入第四关</button>
       </div>
