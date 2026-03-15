@@ -466,7 +466,7 @@
     setScreen(`
       <div class="col">
         <div class="h1">第二关：主序星平衡小游戏</div>
-        <div class="p muted">教学目标：引力 vs 核聚变。坚持 10 秒。</div>
+        <div class="p muted">教学目标：引力 vs 核聚变。用“按住加热、松手冷却”维持平衡，在 15 秒内把稳定度推到 100。</div>
 
         <div class="arena">
           <div class="arena__center">
@@ -494,22 +494,18 @@
           </div>
 
           <div class="row" style="justify-content:space-between; margin-top:12px">
-            <div class="hint">剩余时间：<span class="mono" id="timeLeft">10.0</span>s</div>
+            <div class="hint">剩余时间：<span class="mono" id="timeLeft">15.0</span>s</div>
             <div class="hint" id="miniHint"></div>
           </div>
 
-          <div class="grid2" style="margin-top:12px">
-            <button class="btn" id="btnUp">增强核聚变</button>
-            <button class="btn btn--ghost" id="btnDown">降低核聚变</button>
-          </div>
-
+          <button class="btn" id="btnHold" style="margin-top:12px">按住加热</button>
           <button class="btn" id="btnStart" style="margin-top:10px">开始挑战</button>
         </div>
       </div>
     `);
 
-    const TARGET_MS = 10000;
-    const st = { stability: 90, gravity: 48 + randomInt(0, 6), fusion: 50, elapsed: 0, running: false };
+    const TARGET_MS = 15000;
+    const st = { stability: 65, gravity: 48 + randomInt(0, 6), fusion: 50, elapsed: 0, running: false, holding: false };
     const tickMs = 250;
 
     const elBarSt = $("#barSt");
@@ -521,6 +517,7 @@
     const elTime = $("#timeLeft");
     const elHint = $("#miniHint");
     const btnStart = $("#btnStart");
+    const btnHold = $("#btnHold");
 
     function setBar(el, v) {
       if (!el) return;
@@ -550,13 +547,14 @@
     function start() {
       clearMinigame();
       st.running = true;
-      st.stability = 90;
+      st.stability = 65;
       st.gravity = 48 + randomInt(0, 6);
       st.fusion = 50;
       st.elapsed = 0;
+      st.holding = false;
       if (btnStart) btnStart.disabled = true;
       if (elHint) {
-        elHint.textContent = "保持重力与核聚变接近平衡。";
+        elHint.textContent = "让重力与核聚变尽量接近平衡，稳定度才会上升。";
         elHint.style.color = "rgba(245,246,255,.68)";
       }
       uiUpdate();
@@ -564,29 +562,48 @@
       minigame.timerId = window.setInterval(() => {
         if (!st.running) return;
         st.elapsed += tickMs;
-        // 让“可操作性”更强：更慢的引力增长、更慢的聚变衰减、更温和的稳定度损耗
-        st.gravity = clamp(st.gravity + 0.85, 0, 100);
-        st.fusion = clamp(st.fusion - 0.25, 0, 100);
+        st.gravity = clamp(st.gravity + 0.5, 0, 100);
+        if (st.holding) {
+          st.fusion = clamp(st.fusion + 2.6, 0, 100);
+        } else {
+          st.fusion = clamp(st.fusion - 1.7, 0, 100);
+        }
         const diff = Math.abs(st.gravity - st.fusion);
-        st.stability = clamp(st.stability - (1.35 + diff * 0.05), 0, 100);
+        const balance = clamp(1 - diff / 12, 0, 1); // 越接近越高
+        const overheat = st.fusion > st.gravity + 10 ? (st.fusion - st.gravity - 10) * 0.06 : 0;
+        const gain = 2 * balance;
+        const decay = 0.6 + (1 - balance) * 0.9 + overheat;
+        st.stability = clamp(st.stability + gain - decay, 0, 100);
         uiUpdate();
-        if (st.stability <= 0) return stop("失败：引力占据上风。重新挑战。", "rgba(251,113,133,.95)");
-        if (st.elapsed >= TARGET_MS) {
-          stop("成功：你维持了主序星平衡（10 秒）！", "rgba(52,211,153,.95)");
+        if (st.stability <= 0) return stop("失败：稳定度崩溃。重新挑战。", "rgba(251,113,133,.95)");
+        if (st.stability >= 100) {
+          stop("成功：稳定度达到 100，主序星平衡建立！", "rgba(52,211,153,.95)");
           pushRoute("l2done");
+        }
+        if (st.elapsed >= TARGET_MS) {
+          stop("失败：时间到但稳定度未达 100。", "rgba(251,113,133,.95)");
         }
       }, tickMs);
     }
 
     $("#btnStart")?.addEventListener("click", start);
-    $("#btnUp")?.addEventListener("click", () => {
-      st.fusion = clamp(st.fusion + 3, 0, 100);
-      uiUpdate();
+    const setHolding = (val) => {
+      if (!st.running) return;
+      st.holding = val;
+      if (btnHold) btnHold.textContent = val ? "加热中…" : "按住加热";
+    };
+    btnHold?.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      btnHold.setPointerCapture(e.pointerId);
+      setHolding(true);
     });
-    $("#btnDown")?.addEventListener("click", () => {
-      st.fusion = clamp(st.fusion - 3, 0, 100);
-      uiUpdate();
+    btnHold?.addEventListener("pointerup", (e) => {
+      e.preventDefault();
+      setHolding(false);
+      btnHold.releasePointerCapture(e.pointerId);
     });
+    btnHold?.addEventListener("pointerleave", () => setHolding(false));
+    btnHold?.addEventListener("pointercancel", () => setHolding(false));
 
     uiUpdate();
   }
