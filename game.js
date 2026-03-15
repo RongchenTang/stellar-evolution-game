@@ -325,7 +325,7 @@
   function renderOpening() {
     setScreen(`
       <div class="col">
-        <div class="h1">欢迎来到宇宙。</div>
+        <div class="h1">开场：欢迎来到宇宙</div>
         <div class="p muted">在一片分子云中，一团气体正在坍缩。那就是你。</div>
         <div class="panel">
           <div class="panel__title">命名班级星系</div>
@@ -403,7 +403,7 @@
 
     setScreen(`
       <div class="col">
-        <div class="h1">第一关：原恒星形成（吸积阶段）</div>
+        <div class="h1">第一关：原恒星形成（恒星妊娠期）</div>
         <div class="p muted">教学目标：恒星质量决定命运。</div>
 
         <div class="panel">
@@ -465,7 +465,7 @@
   function renderL2() {
     setScreen(`
       <div class="col">
-        <div class="h1">第二关：主序星平衡小游戏</div>
+        <div class="h1">第二关：主序星平衡小游戏（恒星青少年期）</div>
         <div class="p muted">教学目标：引力 vs 核聚变。用“按住加热、松手冷却”维持平衡，在 15 秒内把稳定度推到 100。</div>
 
         <div class="arena">
@@ -652,7 +652,7 @@
     setScreen(`
       <div class="col">
         <div class="h1">第三关：恒星中年危机</div>
-        <div class="p muted">将“中小质量恒星晚年的因果链”拖拽排序，从上到下排列正确顺序。</div>
+        <div class="p muted">将“中质量恒星面临的中年危机的因果链”拖拽排序，从上到下排列正确顺序。</div>
 
         <div class="panel">
           <div class="panel__title">拖拽排序（从上到下）</div>
@@ -795,7 +795,7 @@
     if (m <= 8) {
       setScreen(`
         <div class="col">
-          <div class="h1">第四关：死亡前夕（行星状星云）</div>
+          <div class="h1">第四关：命运分叉路口（行星状星云）</div>
           <div class="p muted">外层气体被缓慢抛出，形成行星状星云。核心留下白矮星。</div>
           <div class="nebula" aria-hidden="true"></div>
           <button class="btn" id="btnToL5">继续：最终命运</button>
@@ -912,7 +912,7 @@
 
     setScreen(`
       <div class="col">
-        <div class="h1">第五关：最终命运</div>
+        <div class="h1">第五关：恒星结局</div>
         <div class="panel">
           <div class="panel__title">结局：${escapeHtml(end.label)}</div>
           <div class="p">${escapeHtml(text)}</div>
