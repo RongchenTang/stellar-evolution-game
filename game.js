@@ -570,7 +570,7 @@
         const diff = Math.abs(st.gravity - st.fusion);
         const balance = clamp(1 - diff / 12, 0, 1); // 越接近越高
         const overheat = st.fusion > st.gravity + 10 ? (st.fusion - st.gravity - 10) * 0.06 : 0;
-        const gain = 1.2 * balance;
+        const gain = 1.3 * balance;
         const decay = 0.6 + (1 - balance) * 0.9 + overheat;
         st.stability = clamp(st.stability + gain - decay, 0, 100);
         uiUpdate();
