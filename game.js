@@ -150,6 +150,7 @@
       teacherCodes: null,
       teacherUnlock: { 1: false, 2: false, 3: false, 4: false, 5: false },
       l1Rolled: false,
+      l3Order: [null, null, null, null],
       l4Step: 0,
       registry: { className: "", seat: "", recordId: null, export: "" },
     };
@@ -608,41 +609,154 @@
   }
 
   function renderL3() {
+    const steps = [
+      { id: 0, text: "氢燃料逐渐不足，核心堆积“炉渣”氦" },
+      {
+        id: 1,
+        text: "核心收缩：温度不足以点燃氦聚变，失去热压力支撑，引力能转化为热能",
+      },
+      {
+        id: 2,
+        text: "壳层聚变：核心升温，热压力迅速增加，核心收缩、外壳膨胀",
+      },
+      {
+        id: 3,
+        text: "核心氦开始燃烧，热压力与引力再平衡；外壳温度低于 4000K，发红变大，形成红巨星",
+      },
+    ];
+
+    const order = Array.isArray(state.l3Order) ? state.l3Order.slice(0, 4) : [null, null, null, null];
+    while (order.length < 4) order.push(null);
+    const used = new Set(order.filter((v) => v !== null));
+    const pool = steps.filter((s) => !used.has(s.id));
+    const isComplete = order.every((v) => v !== null);
+    const isCorrect = isComplete && order.every((v, i) => v === i);
+
     setScreen(`
       <div class="col">
-        <div class="h1">第三关：恒星中年危机（红巨星）</div>
-        <div class="p muted">教学目标：核心氢燃料耗尽。</div>
+        <div class="h1">第三关：恒星中年危机</div>
+        <div class="p muted">将“中小质量恒星晚年的因果链”拖拽排序，从上到下排列正确顺序。</div>
+
         <div class="panel">
-          <div class="p">数十亿年过去。核心的氢燃料逐渐耗尽。引力再次增强。</div>
-          <div class="panel__title" style="margin-top:10px">你如何应对？</div>
-          <div class="col">
-            <button class="btn" data-choice="A">A：核心收缩</button>
-            <button class="btn btn--ghost" data-choice="B">B：什么都不做</button>
-            <button class="btn btn--ghost" data-choice="C">C：外层膨胀</button>
+          <div class="panel__title">拖拽排序（从上到下）</div>
+          <div class="hint" id="l3Hint">把卡片拖入排序区。</div>
+        </div>
+
+        <div class="dragArea">
+          <div class="dragCol">
+            <div class="dragCol__title">卡片池</div>
+            <div class="dragPool" id="dragPool" data-drop="pool">
+              ${pool
+                .map(
+                  (s) => `
+                    <div class="dragCard" draggable="true" data-id="${s.id}">
+                      ${escapeHtml(s.text)}
+                    </div>
+                  `
+                )
+                .join("")}
+            </div>
           </div>
-          <div class="hint" id="l3Hint" style="margin-top:10px"></div>
+          <div class="dragCol">
+            <div class="dragCol__title">排序区</div>
+            <div class="dragSlots">
+              ${order
+                .map((id, idx) => {
+                  const step = steps.find((s) => s.id === id);
+                  return `
+                    <div class="dragSlot" data-drop="slot" data-slot="${idx}">
+                      <div class="dragSlot__index">第 ${idx + 1} 步</div>
+                      <div class="dragSlot__body">
+                        ${
+                          step
+                            ? `<div class="dragCard" draggable="true" data-id="${step.id}">${escapeHtml(step.text)}</div>`
+                            : `<div class="dragPlaceholder">拖拽到这里</div>`
+                        }
+                      </div>
+                    </div>
+                  `;
+                })
+                .join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="justify-content:flex-end; gap:8px">
+          <button class="btn btn--ghost" id="btnL3Reset">重置排序</button>
+          <button class="btn" id="btnL3Check" ${isComplete ? "" : "disabled"}>检查顺序</button>
         </div>
       </div>
     `);
 
-    $all("[data-choice]").forEach((b) =>
-      b.addEventListener("click", (e) => {
-        const choice = e.currentTarget?.getAttribute("data-choice");
-        const hint = $("#l3Hint");
-        if (choice === "A") {
-          if (hint) {
-            hint.textContent = "正确：核心收缩 → 温度上升 → 新的核聚变发生。你变成红巨星。";
-            hint.style.color = "rgba(52,211,153,.95)";
-          }
-          pushRoute("l3done");
-          return;
-        }
+    const hint = $("#l3Hint");
+
+    function updateOrder(nextOrder) {
+      state.l3Order = nextOrder;
+      saveState();
+      renderL3();
+    }
+
+    function handleDropToSlot(slotIndex, cardId) {
+      const next = Array.isArray(state.l3Order) ? state.l3Order.slice(0, 4) : [null, null, null, null];
+      const currentIndex = next.indexOf(cardId);
+      if (currentIndex >= 0) next[currentIndex] = null;
+      next[slotIndex] = cardId;
+      updateOrder(next);
+    }
+
+    function handleDropToPool(cardId) {
+      const next = Array.isArray(state.l3Order) ? state.l3Order.slice(0, 4) : [null, null, null, null];
+      const currentIndex = next.indexOf(cardId);
+      if (currentIndex >= 0) next[currentIndex] = null;
+      updateOrder(next);
+    }
+
+    $all(".dragCard").forEach((card) => {
+      card.addEventListener("dragstart", (e) => {
+        const id = card.getAttribute("data-id");
+        e.dataTransfer?.setData("text/plain", id ?? "");
+        e.dataTransfer?.setDragImage(card, 10, 10);
+      });
+    });
+
+    $all("[data-drop='slot']").forEach((slot) => {
+      slot.addEventListener("dragover", (e) => e.preventDefault());
+      slot.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const id = Number(e.dataTransfer?.getData("text/plain"));
+        const slotIndex = Number(slot.getAttribute("data-slot"));
+        if (!Number.isFinite(id) || !Number.isFinite(slotIndex)) return;
+        handleDropToSlot(slotIndex, id);
+      });
+    });
+
+    const poolEl = $("#dragPool");
+    poolEl?.addEventListener("dragover", (e) => e.preventDefault());
+    poolEl?.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const id = Number(e.dataTransfer?.getData("text/plain"));
+      if (!Number.isFinite(id)) return;
+      handleDropToPool(id);
+    });
+
+    $("#btnL3Reset")?.addEventListener("click", () => updateOrder([null, null, null, null]));
+
+    $("#btnL3Check")?.addEventListener("click", () => {
+      if (!isComplete) return;
+      if (isCorrect) {
         if (hint) {
-          hint.textContent = "再想想：关键链条通常从“核心收缩”开始。";
+          hint.textContent = "正确：这条因果链最终让恒星外壳变大变红，形成红巨星。";
+          hint.style.color = "rgba(52,211,153,.95)";
+        }
+        setTimeout(() => pushRoute("l3done"), 600);
+      } else {
+        if (hint) {
+          hint.textContent = "顺序不对：请再次思考“核心收缩 → 壳层聚变 → 红巨星”的因果关系。";
           hint.style.color = "rgba(251,191,36,.95)";
         }
-      })
-    );
+        if (navigator.vibrate) navigator.vibrate(30);
+      }
+    });
   }
 
   function renderL3Done() {

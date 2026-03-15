@@ -486,6 +486,78 @@ body {
   margin-bottom: 6px;
 }
 
+.dragArea {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+@media (min-width: 720px) {
+  .dragArea {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.dragCol {
+  display: grid;
+  gap: 8px;
+}
+
+.dragCol__title {
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.2px;
+}
+
+.dragPool,
+.dragSlots {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  min-height: 120px;
+}
+
+.dragCard {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(125, 211, 252, 0.12);
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: grab;
+}
+
+.dragCard:active {
+  cursor: grabbing;
+}
+
+.dragSlot {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.dragSlot__index {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.dragSlot__body {
+  min-height: 54px;
+}
+
+.dragPlaceholder {
+  font-size: 12px;
+  color: rgba(245, 246, 255, 0.45);
+}
+
 .modal {
   width: min(760px, calc(100% - 20px));
   border: 1px solid rgba(255, 255, 255, 0.14);
