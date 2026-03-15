@@ -152,6 +152,7 @@
       l1Rolled: false,
       l3Order: [null, null, null, null],
       l4Step: 0,
+      l4Options: null,
       registry: { className: "", seat: "", epitaph: "", recordId: null, export: "" },
     };
   }
@@ -872,7 +873,17 @@
     const filledCount = clamp(Number(state.l4Step || 0), 0, layers.length);
     const nextIndex = filledCount;
     const completed = filledCount >= layers.length;
-    const options = layers.slice();
+    if (!Array.isArray(state.l4Options) || state.l4Options.length !== layers.length) {
+      const shuffled = layers.slice();
+      for (let i = shuffled.length - 1; i > 0; i -= 1) {
+        const j = randomInt(0, i);
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      state.l4Options = shuffled;
+      saveState();
+    }
+    const options = state.l4Options.slice();
+    const usedElements = new Set(layers.slice(0, filledCount));
 
     const onionHtml = layers
       .map((_, i) => {
@@ -908,8 +919,8 @@
             <div class="hint" id="onionHint"></div>
             <div class="grid2" style="margin-top:10px">
               ${options
-                .map((e, i) => {
-                  const used = i < filledCount;
+                .map((e) => {
+                  const used = usedElements.has(e);
                   return `<button class="btn ${used ? "btn--ghost" : ""}" ${used ? "disabled" : ""} data-pick="${escapeHtml(
                     e
                   )}" type="button">${escapeHtml(e)}</button>`;
@@ -952,6 +963,7 @@
 
     $("#btnOnionReset")?.addEventListener("click", () => {
       state.l4Step = 0;
+      state.l4Options = null;
       saveState();
       render();
     });
