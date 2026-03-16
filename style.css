@@ -486,31 +486,6 @@ body {
   margin-bottom: 6px;
 }
 
-.dragArea {
-  display: grid;
-  gap: 12px;
-  margin-top: 10px;
-  touch-action: none;
-}
-
-@media (min-width: 720px) {
-  .dragArea {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.dragCol {
-  display: grid;
-  gap: 8px;
-}
-
-.dragCol__title {
-  font-weight: 700;
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.2px;
-}
-
 .dragPool,
 .dragSlots {
   display: grid;
@@ -529,18 +504,9 @@ body {
   background: rgba(125, 211, 252, 0.12);
   font-size: 13px;
   line-height: 1.5;
-  cursor: grab;
+  cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-}
-
-.dragCard:active {
-  cursor: grabbing;
-}
-
-.dragCard.is-selected {
-  border-color: rgba(251, 191, 36, 0.45);
-  background: rgba(251, 191, 36, 0.16);
 }
 
 .dragSlot {

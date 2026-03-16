@@ -668,51 +668,40 @@
         <div class="p muted">将“恒星面临的中年危机的因果链”拖拽排序，从上到下排列正确顺序。</div>
 
         <div class="panel">
-          <div class="panel__title">拖拽排序（从上到下）</div>
-          <div class="hint" id="l3Hint">把卡片拖入排序区。</div>
+          <div class="panel__title">点击顺序拼接</div>
+          <div class="hint" id="l3Hint">按正确顺序依次点击卡片，形成完整因果链。</div>
         </div>
 
-        <div class="dragArea">
-          <div class="dragCol">
-            <div class="dragCol__title">卡片池</div>
-            <div class="dragPool" id="dragPool" data-drop="pool">
+            <div class="dragPool">
               ${pool
                 .map(
                   (s) => `
-                    <div class="dragCard" draggable="true" data-id="${s.id}">
+                    <button class="dragCard" data-id="${s.id}" type="button">
                       ${escapeHtml(s.text)}
-                    </div>
+                    </button>
                   `
                 )
                 .join("")}
             </div>
-          </div>
-          <div class="dragCol">
-            <div class="dragCol__title">排序区</div>
-            <div class="dragSlots">
-              ${order
-                .map((id, idx) => {
-                  const step = steps.find((s) => s.id === id);
-                  return `
-                    <div class="dragSlot" data-drop="slot" data-slot="${idx}">
-                      <div class="dragSlot__index">第 ${idx + 1} 步</div>
-                      <div class="dragSlot__body">
-                        ${
-                          step
-                            ? `<div class="dragCard" draggable="true" data-id="${step.id}">${escapeHtml(step.text)}</div>`
-                            : `<div class="dragPlaceholder">拖拽到这里</div>`
-                        }
-                      </div>
-                    </div>
-                  `;
-                })
-                .join("")}
-            </div>
-          </div>
+
+        <div class="dragSlots" style="margin-top:12px">
+          ${order
+            .map((id, idx) => {
+              const step = steps.find((s) => s.id === id);
+              return `
+                <div class="dragSlot" data-card="${step ? step.id : ""}">
+                  <div class="dragSlot__index">第 ${idx + 1} 步</div>
+                  <div class="dragSlot__body">
+                    ${step ? `<div class="dragCard">${escapeHtml(step.text)}</div>` : `<div class="dragPlaceholder">等待选择</div>`}
+                  </div>
+                </div>
+              `;
+            })
+            .join("")}
         </div>
 
         <div class="row" style="justify-content:flex-end; gap:8px">
-          <button class="btn btn--ghost" id="btnL3Reset">重置排序</button>
+          <button class="btn btn--ghost" id="btnL3Reset">重置</button>
           <button class="btn" id="btnL3Check" ${isComplete ? "" : "disabled"}>检查顺序</button>
         </div>
       </div>
@@ -726,85 +715,17 @@
       renderL3();
     }
 
-    function handleDropToSlot(slotIndex, cardId) {
-      const next = Array.isArray(state.l3Order) ? state.l3Order.slice(0, 4) : [null, null, null, null];
-      const currentIndex = next.indexOf(cardId);
-      if (currentIndex >= 0) next[currentIndex] = null;
-      next[slotIndex] = cardId;
-      updateOrder(next);
-    }
-
-    function handleDropToPool(cardId) {
-      const next = Array.isArray(state.l3Order) ? state.l3Order.slice(0, 4) : [null, null, null, null];
-      const currentIndex = next.indexOf(cardId);
-      if (currentIndex >= 0) next[currentIndex] = null;
-      updateOrder(next);
-    }
-
-    $all(".dragCard").forEach((card) => {
-      card.addEventListener("dragstart", (e) => {
-        const id = card.getAttribute("data-id");
-        e.dataTransfer?.setData("text/plain", id ?? "");
-        e.dataTransfer?.setDragImage(card, 10, 10);
-      });
-      card.addEventListener("pointerdown", (e) => {
-        // Prevent long-press text selection on touch only
-        if (e.pointerType === "touch") e.preventDefault();
-      });
-    });
-
-    $all("[data-drop='slot']").forEach((slot) => {
-      slot.addEventListener("dragover", (e) => e.preventDefault());
-      slot.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const id = Number(e.dataTransfer?.getData("text/plain"));
-        const slotIndex = Number(slot.getAttribute("data-slot"));
-        if (!Number.isFinite(id) || !Number.isFinite(slotIndex)) return;
-        handleDropToSlot(slotIndex, id);
-      });
-    });
-
-    const poolEl = $("#dragPool");
-    poolEl?.addEventListener("dragover", (e) => e.preventDefault());
-    poolEl?.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const id = Number(e.dataTransfer?.getData("text/plain"));
-      if (!Number.isFinite(id)) return;
-      handleDropToPool(id);
-    });
-
-    // Tap-to-place fallback for mobile
-    let selectedId = null;
-    function setSelected(id) {
-      selectedId = id;
-      $all(".dragCard").forEach((c) => c.classList.remove("is-selected"));
-      if (id === null) return;
-      const target = $all(".dragCard").find((c) => Number(c.getAttribute("data-id")) === id);
-      target?.classList.add("is-selected");
-      if (hint) {
-        hint.textContent = "已选中卡片，请点击排序区的空位放置。";
-        hint.style.color = "rgba(245,246,255,.68)";
-      }
-    }
-
-    $all(".dragCard").forEach((card) => {
+    $all(".dragPool .dragCard").forEach((card) => {
       card.addEventListener("click", () => {
         const id = Number(card.getAttribute("data-id"));
         if (!Number.isFinite(id)) return;
-        setSelected(id);
+        const next = Array.isArray(state.l3Order) ? state.l3Order.slice(0, 4) : [null, null, null, null];
+        const emptyIndex = next.findIndex((v) => v === null);
+        if (emptyIndex === -1) return;
+        next[emptyIndex] = id;
+        updateOrder(next);
       });
     });
-
-    $all("[data-drop='slot']").forEach((slot) => {
-      slot.addEventListener("click", () => {
-        if (selectedId === null) return;
-        const slotIndex = Number(slot.getAttribute("data-slot"));
-        if (!Number.isFinite(slotIndex)) return;
-        handleDropToSlot(slotIndex, selectedId);
-      });
-    });
-
-    poolEl?.addEventListener("click", () => setSelected(null));
 
     $("#btnL3Reset")?.addEventListener("click", () => updateOrder([null, null, null, null]));
 
