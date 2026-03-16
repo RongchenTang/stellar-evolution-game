@@ -532,6 +532,12 @@ body {
   color: rgba(245, 246, 255, 0.45);
 }
 
+.dragError {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(251, 113, 133, 0.95);
+}
+
 .modal {
   width: min(760px, calc(100% - 20px));
   border: 1px solid rgba(255, 255, 255, 0.14);

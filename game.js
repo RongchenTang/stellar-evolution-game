@@ -661,6 +661,7 @@
     const pool = steps.filter((s) => !used.has(s.id));
     const isComplete = order.every((v) => v !== null);
     const isCorrect = isComplete && order.every((v, i) => v === i);
+    const errorSteps = Array.isArray(state.l3Errors) ? state.l3Errors : [];
 
     setScreen(`
       <div class="col">
@@ -694,6 +695,7 @@
                   <div class="dragSlot__body">
                     ${step ? `<div class="dragCard">${escapeHtml(step.text)}</div>` : `<div class="dragPlaceholder">等待选择</div>`}
                   </div>
+                  ${errorSteps.includes(idx) ? `<div class="dragError">本步顺序有误</div>` : ""}
                 </div>
               `;
             })
@@ -711,6 +713,7 @@
 
     function updateOrder(nextOrder) {
       state.l3Order = nextOrder;
+      state.l3Errors = [];
       saveState();
       renderL3();
     }
@@ -742,6 +745,12 @@
           hint.textContent = "顺序不对：请再次思考“核心收缩 → 壳层聚变 → 红巨星”的因果关系。";
           hint.style.color = "rgba(251,191,36,.95)";
         }
+        const wrong = order
+          .map((v, idx) => (v === idx ? null : idx))
+          .filter((v) => v !== null);
+        state.l3Errors = wrong;
+        saveState();
+        renderL3();
         if (navigator.vibrate) navigator.vibrate(30);
       }
     });
