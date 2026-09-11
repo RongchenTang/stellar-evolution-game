@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hans">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>领养一颗恒星 · 云端实验课堂</title>
+<link rel="stylesheet" href="cloud.css">
+<header><span>✦ ADOPT A STAR</span><h1>把你的恒星，种进这片星空。</h1><p>6 × 6 班级星区 · 上下左右寻找双星伙伴</p></header>
+<main>
+  <p id="status" role="status">正在连接云端……</p>
+  <section id="entry">
+    <h2>加入课堂</h2>
+    <form id="joinForm"><label>课堂码<input id="code" required maxlength="12" autocomplete="off"></label><button>进入星区</button></form>
+    <details><summary>教师入口 · 邮箱登录</summary>
+      <p>使用你在此项目创建的教师用户邮箱和密码，不是 Supabase 控制台账号。学生无需邮箱。</p>
+      <form id="loginForm"><label>邮箱<input id="email" type="email" required autocomplete="username"></label><label>密码<input id="password" type="password" required autocomplete="current-password"></label><button>教师登录</button></form>
+    </details>
+  </section>
+  <section id="teacher" hidden><h2>我的课堂</h2><form id="createForm"><label>课堂名称<input id="roomName" required maxlength="60"></label><button>创建6×6星区</button></form><div id="rooms"></div></section>
+  <section id="classroom" hidden>
+    <div class="heading"><div><h2 id="classTitle"></h2><p id="classCode"></p></div><button id="refresh">刷新星图</button></div>
+    <p id="instructions"></p><div id="grid" aria-label="六行六列恒星种植区"></div>
+    <p class="hint">蓝色：成长中 · 金色：已登记 · 紫色：双星。点击查看详情。地图每5秒自动更新。</p>
+    <div id="binary" hidden role="status"></div>
+    <section id="plant" hidden><h3>栽种你的恒星</h3><p id="selection">请先点击一个空格。</p><label>恒星名称<input id="starName" maxlength="40" value="我的恒星"></label><p id="mass"></p><button id="claim">确认栽种 · 位置与初始质量将锁定</button></section>
+    <section id="play" hidden><button id="startGame">打开 / 收起恒星课件</button><iframe id="game" title="恒星演化互动课件" hidden></iframe><div id="finish" hidden><h3>为你的恒星写一句寄语</h3><textarea id="epitaph" maxlength="80" rows="3" placeholder="最多80字，请勿填写个人敏感信息"></textarea><button id="submit">完成宇宙登记</button><p>提交失败时请保留此浏览器，联网后可重试。</p></div></section>
+    <button id="leave" class="secondary">返回课堂入口</button>
+  </section>
+  <button id="logout" class="secondary">退出登录</button>
+  <p class="hint">实验版：请仅使用昵称。不要清除浏览器数据，否则匿名学生身份可能丢失。双星为课堂配对情境。</p>
+</main>
+<dialog id="detail"><h2 id="detailTitle"></h2><p id="detailText"></p><button id="closeDetail">关闭</button></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+<script src="cloud.js"></script>
+</html>
