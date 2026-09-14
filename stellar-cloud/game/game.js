@@ -24,6 +24,7 @@
   const detailBodyEl = document.getElementById("detailBody");
 
   const historyStack = [];
+  let displayedRoute = null;
   const minigame = { timerId: null };
   const FIXED_CODES = { 2: "1024", 3: "2333", 4: "4068", 5: "6666" };
 
@@ -217,6 +218,8 @@
   }
 
   function setScreen(html) {
+    const routeChanged = displayedRoute !== state.route;
+    displayedRoute = state.route;
     elScreen.innerHTML = html;
     if (window.parent !== window) window.parent.postMessage({type: "stellar-progress", mass: state.mass, finished: ["l5", "end:browndwarf"].includes(state.route)}, location.origin);
     window.mountCourse(elScreen, state, (route) => {
@@ -224,6 +227,7 @@
       if (!Number.isFinite(state.mass)) state.mass = 1;
       pushRoute(route);
     });
+    if (routeChanged) elScreen.scrollTo({top: 0, left: 0, behavior: "instant"});
   }
 
   function pushRoute(nextRoute) {
@@ -482,7 +486,7 @@
         <div class="h1">第二关：主序星平衡小游戏（恒星青少年期）</div>
         <div class="p muted">教学目标：引力 vs 核聚变。用“按住加热、松手冷却”维持平衡，在 15 秒内把稳定度推到 100。</div>
 
-        <div class="arena">
+        <div class="arena balance-arena">
           <div class="arena__center">
             <div class="arrow">重力<br/>↓↓↓</div>
             <div class="core"><span class="core__glow">恒星核心</span></div>
@@ -532,6 +536,10 @@
     const elHint = $("#miniHint");
     const btnStart = $("#btnStart");
     const btnHold = $("#btnHold");
+    const arena = $(".balance-arena");
+    ["contextmenu", "selectstart", "copy", "dragstart"].forEach((eventName) => {
+      arena?.addEventListener(eventName, (event) => event.preventDefault());
+    });
 
     function setBar(el, v) {
       if (!el) return;
@@ -614,10 +622,24 @@
     btnHold?.addEventListener("pointerup", (e) => {
       e.preventDefault();
       setHolding(false);
-      btnHold.releasePointerCapture(e.pointerId);
+      if (btnHold.hasPointerCapture(e.pointerId)) btnHold.releasePointerCapture(e.pointerId);
     });
     btnHold?.addEventListener("pointerleave", () => setHolding(false));
     btnHold?.addEventListener("pointercancel", () => setHolding(false));
+    btnHold?.addEventListener("lostpointercapture", () => setHolding(false));
+    btnHold?.addEventListener("blur", () => setHolding(false));
+    btnHold?.addEventListener("keydown", (event) => {
+      if (event.code === "Space" || event.code === "Enter") {
+        event.preventDefault();
+        setHolding(true);
+      }
+    });
+    btnHold?.addEventListener("keyup", (event) => {
+      if (event.code === "Space" || event.code === "Enter") {
+        event.preventDefault();
+        setHolding(false);
+      }
+    });
 
     uiUpdate();
   }
@@ -665,7 +687,7 @@
     const errorSteps = Array.isArray(state.l3Errors) ? state.l3Errors : [];
 
     setScreen(`
-      <div class="col">
+      <div class="col crisis-game">
         <div class="h1">第三关：恒星中年危机</div>
         <div class="p muted">将“恒星面临的中年危机的因果链”拖拽排序，从上到下排列正确顺序。</div>
 

@@ -15,3 +15,40 @@
 .course--aftermath { flex-basis: 100%; width: 100%; margin-top: 24px; padding: 22px 0; border-top: 1px solid var(--line); }
 @media (min-width: 900px) { .card { padding: 30px 42px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+.app { min-height: 0; }
+.card { min-height: 0; overflow-anchor: none; }
+.balance-arena, .balance-arena * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.balance-arena .bar { grid-template-columns: 140px minmax(0, 1fr) 56px; }
+.balance-arena .bar__label, .balance-arena .bar__value { font-size: 19px; font-weight: 700; color: var(--text); }
+.balance-arena .bar__track { height: 24px; }
+.balance-arena .bars { gap: 16px; }
+.balance-arena .hint, .balance-arena .arrow, .balance-arena .core__glow { font-size: 18px; }
+.balance-arena #btnHold, .balance-arena #btnStart { width: 100%; min-height: 66px; font-size: 22px; font-weight: 700; }
+.balance-arena #btnHold { touch-action: none; }
+.balance-arena .row { flex-wrap: wrap; gap: 8px; }
+@media (max-width: 600px) {
+  .app { padding: 6px; gap: 6px; }
+  .card { padding: 14px 10px; border-radius: 12px; }
+  .course nav { gap: 6px; margin-bottom: 16px; }
+  .course nav button { flex: 1 0 28%; padding: 10px 6px; }
+  .course p, .course li { font-size: 17px; line-height: 1.8; }
+  .course ul { padding-left: 22px; }
+  .course details { padding: 10px; }
+  .balance-arena .bar { grid-template-columns: minmax(0, 1fr) 52px; gap: 6px; }
+  .balance-arena .bar__label { grid-column: 1; grid-row: 1; }
+  .balance-arena .bar__value { grid-column: 2; grid-row: 1; }
+  .balance-arena .bar__track { grid-column: 1 / -1; grid-row: 2; }
+  .balance-arena .arena__center { gap: 8px; }
+}
+.crisis-game { color: #fff; font-size: 18px; }
+.crisis-game .h1 { color: #fff; font-size: 22px; }
+.crisis-game .p, .crisis-game .panel__title { color: #fff; }
+.crisis-game .dragCard { color: #fff; font-size: 15px; }
+.crisis-game .dragSlot__index { color: #fff; font-size: 13px; }
+.crisis-game .hint, .crisis-game .dragPlaceholder { color: #fff; font-size: 14px; }
+.crisis-game .dragError { font-size: 14px; }
+.crisis-game .btn { color: #fff; font-size: 15.3333px; }

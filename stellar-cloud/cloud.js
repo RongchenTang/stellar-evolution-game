@@ -9,6 +9,12 @@
   let refreshing = false;
   let busy = false;
   let birthMass;
+  function setLearning(open) {
+    document.body.classList.toggle("learning", open);
+    get("game").hidden = !open;
+    get("startGame").textContent = open ? "← 收起课件，返回班级星图" : "打开恒星课件";
+    if (!open) get("startGame").focus({preventScroll:true});
+  }
   const progressKey = () => `stellar-cloud-progress:${user.id}:${room.id}`;
   const parse = (value) => { try { return JSON.parse(value); } catch { return null; } };
   const self = () => room?.stars.find(star => star.id === room.self_id);
@@ -72,7 +78,7 @@
       localStorage.setItem(draftKey,String(birthMass));
     }
     get("mass").textContent = `初始质量：${birthMass.toFixed(2)} M☉（扩展到30 M☉，保留黑洞路线；确认后可在游戏中吸积调整）`;
-    get("game").hidden = true; get("game").removeAttribute("src");
+    setLearning(false); get("game").removeAttribute("src");
     get("epitaph").value = localStorage.getItem(progressKey()+":epitaph") || "";
     draw(); say("已连接课堂。星图每5秒自动刷新。");
   }
@@ -102,7 +108,7 @@
   });
   get("startGame").onclick=()=>{
     if(!get("game").getAttribute("src")) get("game").src="game/index.html";
-    get("game").hidden=!get("game").hidden;
+    setLearning(get("game").hidden);
   };
   window.addEventListener("message",event=>{
     if(event.origin!==location.origin || event.source!==get("game").contentWindow || !room || !self()) return;
@@ -110,7 +116,7 @@
       get("game").contentWindow.postMessage({type:"stellar-init",star:self(),classroom:room.name,storageKey:progressKey()+":game"},location.origin);
     }
     if(event.data?.type==="stellar-register") {
-      get("game").hidden=true;
+      setLearning(false);
       get("finish").scrollIntoView({behavior:"smooth"});
     }
     if(event.data?.type==="stellar-progress") {
